@@ -1,5 +1,7 @@
 import wikipedia
 import re
+import json
+import pendulum
 from bs4 import BeautifulSoup
 from functools import reduce
 
@@ -79,3 +81,19 @@ def get_poll_tables(html_raw):
     tables = list(reduce((lambda x, y: x+y), tables))
     tables = list(filter(item_filter, tables))
     return tables
+
+
+def save_to_json(dict, name):
+    output = json.dumps(dict)
+    f = open(name, 'w')
+    f.write(output)
+    f.close()
+    return
+
+
+def save_tables(tables, name):
+    result = {}
+    result['polling_data'] = tables
+    result['access_time'] = pendulum.now().to_iso8601_string()
+    result['name'] = name
+    save_to_json(result, name)
