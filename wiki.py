@@ -5,27 +5,35 @@ from functools import reduce
 
 wikipedia.set_lang('en')
 
+# This function will be used to used to retrive raw html from the given query
+
 
 def get_page_html(query):
     # Since there may be multiple items linked with a query
     # Let wikipedia suggest one for us
     return wikipedia.page(wikipedia.search(query)[0]).html()
 
+# This function will be used to clean the text values
+
+
 def clean_text(text):
-    result = re.sub('\n+',' ',text)
-    result = re.sub(' +',' ', result)
+    result = re.sub('\n+', ' ', text)
+    result = re.sub(' +', ' ', result)
     result = bytes(result, 'UTF-8')
     result = result.decode('ascii', 'ignore')
     result = result.strip()
     return result
 
 
+# This function will try to extract each row in the table as a dictionary
 def parse_table(table):
     # get all the keys
-    keys = list(map(lambda x: x.text.replace('\n', ''), table.find_all('th')))
+    keys = list(map(lambda x: x.text.replace(
+        '\n', '').strip(), table.find_all('th')))
+    keys = list(filter(lambda x: len(x.strip()), keys))
     result = []
 
-    flag = False;
+    flag = False
     for key in keys[0:3]:
         if re.search('poll', key, re.IGNORECASE) is not None:
             flag = True
@@ -51,13 +59,23 @@ def parse_table(table):
     return result
 
 
+# This function will be used to filter invalid table in the final results
+
+def item_filter(item):
+    if(len(item) < 3):
+        return False
+    else:
+        return True
+
+# This funciton will try to extract tables from the given html
+
+
 def get_poll_tables(html_raw):
     # Specify parser to avoid warning
     bs_obj = BeautifulSoup(html_raw, "html.parser")
     tables = bs_obj.find_all('table', {'class': 'wikitable'})
     tables = list(map(lambda x: parse_table(x), tables))
-    tables = list(filter(lambda x:len(x)>0, tables))
+    tables = list(filter(lambda x: len(x) > 0, tables))
     tables = list(reduce((lambda x, y: x+y), tables))
+    tables = list(filter(item_filter, tables))
     return tables
-
-print(get_poll_tables(get_page_html('south korea presidential election')))
