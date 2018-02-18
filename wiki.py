@@ -91,9 +91,28 @@ def save_to_json(dict, name):
     return
 
 
+def remap_tables_keys(tables, mapping):
+    # Clone the original tables to avoid mutating origianl list
+    tables = list(tables)
+
+    for table in tables:
+        for key in list(table.keys()):
+            for mapKey in list(mapping.keys()):
+                if (re.search(mapKey, key, re.IGNORECASE)):
+                    table[mapping[mapKey]] = table[key]
+                    del table[key]
+                    break
+    return tables
+
+
 def save_tables(tables, name):
     result = {}
     result['polling_data'] = tables
     result['access_time'] = pendulum.now().to_iso8601_string()
     result['name'] = name
     save_to_json(result, name)
+
+
+def read_tables(name):
+    f = open(name)
+    return json.load(f)
