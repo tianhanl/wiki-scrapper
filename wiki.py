@@ -4,6 +4,7 @@ import json
 import pendulum
 from bs4 import BeautifulSoup
 from functools import reduce
+from urllib.request import urlopen
 
 wikipedia.set_lang('en')
 
@@ -15,7 +16,11 @@ def get_page_html(query):
     # Let wikipedia suggest one for us
     return wikipedia.page(wikipedia.search(query)[0]).html()
 
-# This function will be used to clean the text values
+
+def get_page_html_from_url(link):
+    return urlopen(link)
+
+    # This function will be used to clean the text values
 
 
 def clean_text(text):
