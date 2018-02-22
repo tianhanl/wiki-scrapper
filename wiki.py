@@ -14,11 +14,21 @@ wikipedia.set_lang('en')
 def get_page_html(query):
     # Since there may be multiple items linked with a query
     # Let wikipedia suggest one for us
-    return wikipedia.page(wikipedia.search(query)[0]).html()
+    content = None
+    try:
+        content = wikipedia.page(wikipedia.search(query)[0]).html()
+    except:
+        print('An error has occured when getting information from your query')
+    return content
 
 
 def get_page_html_from_url(link):
-    return urlopen(link)
+    content = None
+    try:
+        content = urlopen(link)
+    except:
+        print('An error has occured when getting information from your query')
+    return content
 
     # This function will be used to clean the text values
 
@@ -79,12 +89,15 @@ def item_filter(item):
 
 def get_poll_tables(html_raw):
     # Specify parser to avoid warning
-    bs_obj = BeautifulSoup(html_raw, "html.parser")
-    tables = bs_obj.find_all('table', {'class': 'wikitable'})
-    tables = list(map(lambda x: parse_table(x), tables))
-    tables = list(filter(lambda x: len(x) > 0, tables))
-    tables = list(reduce((lambda x, y: x+y), tables))
-    tables = list(filter(item_filter, tables))
+    if(html_raw is not None):
+        bs_obj = BeautifulSoup(html_raw, "html.parser")
+        tables = bs_obj.find_all('table', {'class': 'wikitable'})
+        tables = list(map(lambda x: parse_table(x), tables))
+        tables = list(filter(lambda x: len(x) > 0, tables))
+        tables = list(reduce((lambda x, y: x+y), tables))
+        tables = list(filter(item_filter, tables))
+    else:
+        tables = []
     return tables
 
 

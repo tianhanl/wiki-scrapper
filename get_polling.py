@@ -16,8 +16,9 @@ if __name__ == '__main__':
             # if query is a link, directly use the link to get page content
             polling_tables = wiki.get_poll_tables(
                 wiki.get_page_html_from_url(query))
+            wiki.save_tables(polling_tables,
+                             'polling_data' + '.json')
         else:
             polling_tables = wiki.get_poll_tables(wiki.get_page_html(query))
-
-        wiki.save_tables(polling_tables,
-                         query.lower().replace(' ', '_') + '.json')
+            wiki.save_tables(polling_tables,
+                             query.lower().replace(' ', '_') + '.json')
