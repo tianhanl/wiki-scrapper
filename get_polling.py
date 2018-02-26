@@ -2,6 +2,8 @@ import sys
 # This filed is created to allow get polling data and save them using command line
 # Usage: python3 get_polling.py "query"
 
+path = './pollings/'
+
 if __name__ == '__main__':
     from sys import argv
     import wiki
@@ -17,8 +19,8 @@ if __name__ == '__main__':
             polling_tables = wiki.get_poll_tables(
                 wiki.get_page_html_from_url(query))
             wiki.save_tables(polling_tables,
-                             'polling_data' + '.json')
+                             path + 'polling_data' + '.json')
         else:
             polling_tables = wiki.get_poll_tables(wiki.get_page_html(query))
             wiki.save_tables(polling_tables,
-                             query.lower().replace(' ', '_') + '.json')
+                             path + query.lower().replace(' ', '_') + '.json')

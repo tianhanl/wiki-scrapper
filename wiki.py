@@ -2,6 +2,7 @@ import wikipedia
 import re
 import json
 import pendulum
+import requests
 from bs4 import BeautifulSoup
 from functools import reduce
 from urllib.request import urlopen
@@ -24,10 +25,7 @@ def get_page_html(query):
 
 def get_page_html_from_url(link):
     content = None
-    try:
-        content = urlopen(link)
-    except:
-        print('An error has occured when getting information from your query')
+    content = requests.get(link).text
     return content
 
     # This function will be used to clean the text values
@@ -53,6 +51,8 @@ def parse_table(table):
     flag = False
     for key in keys[0:3]:
         if re.search('poll', key, re.IGNORECASE) is not None:
+            flag = True
+        if re.search('agency', key, re.IGNORECASE) is not None:
             flag = True
     # If no keys contain poll, assume the table is not related with polling data
     # if not any('poll' in key for key in keys):
@@ -89,12 +89,13 @@ def item_filter(item):
 
 def get_poll_tables(html_raw):
     # Specify parser to avoid warning
-    if(html_raw is not None):
+    if html_raw is not None:
         bs_obj = BeautifulSoup(html_raw, "html.parser")
         tables = bs_obj.find_all('table', {'class': 'wikitable'})
         tables = list(map(lambda x: parse_table(x), tables))
         tables = list(filter(lambda x: len(x) > 0, tables))
-        tables = list(reduce((lambda x, y: x+y), tables))
+        if len(tables) > 1:
+            tables = list(reduce((lambda x, y: x+y), tables))
         tables = list(filter(item_filter, tables))
     else:
         tables = []
